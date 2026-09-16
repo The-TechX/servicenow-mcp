@@ -13,3 +13,8 @@ def register_record_tools(mcp, client):
         """Return a typed structured view for a supported ServiceNow record."""
         record = client.show_record(number)
         return asdict(record) if record else None
+
+    @mcp.tool()
+    def add_work_note(number: str, text: str):
+        """Append a work note to a supported ServiceNow record."""
+        return client.add_work_note(number, text)
