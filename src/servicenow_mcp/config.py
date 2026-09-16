@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load a local .env when present. Existing environment variables keep priority.
+load_dotenv()
 
 @dataclass(frozen=True)
 class Settings:
