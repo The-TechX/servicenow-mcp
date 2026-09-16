@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "servicenow-mcp"
+version = "0.1.0"
+description = "MCP server for ServiceNow automation primitives"
+requires-python = ">=3.11"
+dependencies = [
+  "beautifulsoup4>=4.12",
+  "mcp>=1.0",
+  "playwright>=1.50",
+]
+
+[project.scripts]
+servicenow-mcp = "servicenow_mcp.server:main"
+servicenow-login = "servicenow_mcp.login:main"
+servicenow-cli = "servicenow_mcp.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
