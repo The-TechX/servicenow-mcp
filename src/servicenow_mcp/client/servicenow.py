@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 from ..errors import AuthenticationError, ResponseError
 from ..parsers.task_list import parse_task_list, extract_total
-from ..parsers.task_form import parse_task_form
+from ..parsers.record_form import parse_record_form, SUPPORTED_RECORD_TYPES
 
 class ServiceNowClient:
     def __init__(self, base_url: str, auth):
@@ -45,16 +45,31 @@ class ServiceNowClient:
                 return out
             finally: q.dispose()
 
+    def search_record(self, number: str):
+        """Resolve an exact task-derived record number through ServiceNow's task table."""
+        number = number.strip().upper()
+        records = self.list_tasks(f"number={number}")
+        return next((x for x in records if x.number.upper() == number), None)
+
+    def show_record(self, number: str):
+        """Return a typed structured view for a supported ServiceNow record."""
+        summary = self.search_record(number)
+        if summary is None:
+            return None
+        if summary.record_type not in SUPPORTED_RECORD_TYPES:
+            raise ResponseError(f"Unsupported ServiceNow record type: {summary.record_type}")
+        with sync_playwright() as p:
+            q = p.request.new_context(storage_state=self.auth.storage_state_path())
+            try:
+                response = q.get(f"{self.base_url}/{summary.record_type}.do?sys_id={summary.sys_id}")
+                html = self._validated_form(response, summary.record_type)
+            finally:
+                q.dispose()
+        return parse_record_form(html, summary.record_type, summary.sys_id, summary.number)
+
+    # Compatibility aliases for callers using the original v0.1 API.
     def search_task(self, number: str):
-        number=number.strip().upper()
-        tasks=self.list_tasks(f"number={number}")
-        return next((t for t in tasks if t.number.upper()==number), None)
+        return self.search_record(number)
 
     def show_task(self, number: str):
-        summary=self.search_task(number)
-        if summary is None: return None
-        with sync_playwright() as p:
-            q=p.request.new_context(storage_state=self.auth.storage_state_path())
-            try: html=self._validated_form(q.get(f"{self.base_url}/{summary.record_type}.do?sys_id={summary.sys_id}"), summary.record_type)
-            finally: q.dispose()
-        return parse_task_form(html, summary.record_type, summary.sys_id, summary.number)
+        return self.show_record(number)

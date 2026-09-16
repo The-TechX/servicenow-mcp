@@ -32,9 +32,9 @@ def main():
     if args.command == "active": result=[asdict(x) for x in c.list_tasks(ACTIVE_QUERY)]
     elif args.command == "completed": result=[asdict(x) for x in c.list_tasks(COMPLETED_QUERY)]
     elif args.command == "search":
-        x=c.search_task(args.number); result=asdict(x) if x else None
+        x=c.search_record(args.number); result=asdict(x) if x else None
     else:
-        x=c.show_task(args.number); result=asdict(x) if x else None
+        x=c.show_record(args.number); result=asdict(x) if x else None
     print(json.dumps(result, indent=2, ensure_ascii=False, default=_json_default))
 
 if __name__ == "__main__": main()
