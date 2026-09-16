@@ -61,3 +61,7 @@ Current MCP tools:
 ## Security
 
 Never commit `session.json`, `.env`, cookies, SSO artifacts, or authentication tokens. The intended deployment is local on the user's workstation; Docker is intentionally deferred until the interactive authentication lifecycle is understood.
+
+## Documentation
+
+Record-type discovery and parser design notes live in [Structured Views](docs/structured-views/README.md). These XRAY documents describe the generic HTML structure observed for each supported ServiceNow record type without containing tenant-specific data.
